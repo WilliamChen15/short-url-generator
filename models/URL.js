@@ -5,5 +5,9 @@ const URLSchema = new Schema({
     type: String,
     required: true
   },
+  shortURL: {
+    type: String,
+    required: true
+  },
 })
 module.exports = mongoose.model('URL', URLSchema)
