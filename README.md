@@ -14,7 +14,7 @@ git clone https://github.com/WilliamChen15/short-url-generator.git
 ### 移動到專案資料夾
 cd short-url-generator  
 ### 安裝必要套件  
-npm install ...  
+npm install   
 
 ### 載入種子資料(google、facebook、instagram)    
 npm run seed  
