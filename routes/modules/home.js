@@ -2,12 +2,13 @@ const express = require('express')
 const router = express.Router()
 const generateShortURL = require('../../random-generator')
 
+
 const URL = require('../../models/URL')
 
 let shortURL = ""
-let inDB = 0
+let inDB = 0 // 解決非同步用的判斷變數
 
-router.get('/', (req, res) => {
+router.get('/', (_req, res) => {
   shortURL = "" //重置
   res.render('index')
 })
@@ -17,23 +18,24 @@ router.post('/show', (req, res) => {
   // 在DB中找是否已經產生過對應短網址
   URL.find({ originalURL })
     .lean()
-    .then(function (url) {
-      if (url.length !== 0) {
+    .then(function (data) {
+      if (data.length !== 0) {
         inDB = 1
-        shortURL = url[0].shortURL
+        shortURL = data[0].shortURL
         return res.redirect('/show')
       }
       inDB = 0
       return shortURL = generateShortURL()
     })
+    // 檢查產生的短網址是否重複
     .then(function check() {
       // 如果DB沒有才執行
       if (inDB === 0) {
         URL.find({ shortURL })
           .lean()
-          .then(function (url) {
+          .then(function (data) {
             // 沒有重複的已存短網址
-            if (url.length === 0) { } else {
+            if (data.length === 0) { } else {
               // 有重複的，重造
               shortURL = generateShortURL()
               return check()
@@ -42,8 +44,9 @@ router.post('/show', (req, res) => {
       }
       return
     })
+    // 不重複後在DB中創建資料
     .then(() => {
-      // 如果DB沒有才執行
+      // 一樣，如果DB沒有才執行
       if (inDB === 0) {
         URL.create({ originalURL, shortURL })
           .then(() => {
@@ -53,9 +56,10 @@ router.post('/show', (req, res) => {
       }
       return
     })
+    .catch(error => console.log(error))
 })
 
-router.get('/show', (req, res) => {
+router.get('/show', (_req, res) => {
   res.render('show', { shortURL })
 })
 
@@ -63,16 +67,23 @@ router.get('/show', (req, res) => {
 router.get('/:shortURL', (req, res) => {
   // 以短網址在DB中找原網址
   const shortURL = req.params.shortURL
+  // 這玩意兒怎麼冒出來的...? 首頁路徑後面藏著這玩意兒? 
+  if (shortURL === 'favicon.ico') {
+    return
+  }
   URL.find({ shortURL })
     .lean()
-    .then(function (url) {
+    .then(function (data) {
+      console.log("data:", data)
       //若無
-      if (url.length === 0) {
-        return error
+      if (data.length === 0) { // 為啥可以這樣= =?
+        return console.log("the originalURL is not exist")
       }
-      const originalURL = url[0].originalURL
+      const originalURL = data[0].originalURL
       return res.redirect(originalURL)
     })
+    .catch(error => console.log(error))
 })
+
 
 module.exports = router
