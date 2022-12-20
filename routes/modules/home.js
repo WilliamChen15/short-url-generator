@@ -76,7 +76,7 @@ router.get('/:shortURL', (req, res) => {
     .then(function (data) {
       console.log("data:", data)
       //若無
-      if (data.length === 0) { // 為啥可以這樣= =?
+      if (data.length === 0) { // 為啥可以這樣= =? // 先問助教，若沒問題，可在後面執行remove，減少DB中無用資料數量
         return console.log("the originalURL is not exist")
       }
       const originalURL = data[0].originalURL
