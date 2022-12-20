@@ -20,7 +20,7 @@ npm install
 npm run seed  
 ### 開啟專案  
 npm run start  
-若看見此訊息則代表順利運行，打開瀏覽器進入到以下網址:
+若看見此訊息則代表順利運行，打開瀏覽器進入到以下網址:  
 App is running on http://localhost:3000
 
 ## 環境及安裝套件
