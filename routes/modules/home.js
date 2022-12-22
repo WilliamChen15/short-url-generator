@@ -4,6 +4,8 @@ const generateShortURL = require('../../random-generator')
 
 const URL = require('../../models/URL')
 
+
+
 router.get('/', (_req, res) => {
   res.render('index')
 })
@@ -11,37 +13,39 @@ router.get('/', (_req, res) => {
 router.post('/show', (req, res) => {
   const originalURL = req.body.originalURL
   // 在DB中找是否已經產生過對應短網址
-  let inDB = 0
   URL.find({ originalURL })
     .lean()
-    .then(function (data) {
+    .then((data) => {
+      // data ? data : generateShortURL()
       if (data.length !== 0) {
-        inDB = 1 // DB中有對應資料
+        console.log('已經有囉!')
         const shortURL = data[0].shortURL
         return res.render('show', { shortURL })
-      }
-    })
-    .then(function check() {
-      // 如果DB沒有才執行
-      if (inDB === 0) {
-        const shortURL = generateShortURL()
-        URL.find({ shortURL })
-          .lean()
-          .then(function (data) {
-            // 沒有重複的已存短網址
-            if (data.length === 0) {
-              URL.create({ originalURL, shortURL })
-                .then(() => {
-                  return res.render('show', { shortURL })
-                })
-            } else {
-              // 有重複的，重造      
-              return check()
-            }
-          })
-          .catch(error => console.log(error))
       } else {
-        return
+        console.log('沒有唷!')
+        function check() {
+          const shortURL = generateShortURL()
+          console.log('1')
+          return URL.find({ shortURL })
+            .lean()
+            .then(function (data) {
+              console.log('2')
+              // 沒有重複的已存短網址
+              if (data.length === 0) {
+                console.log('來造資料囉!')
+                URL.create({ originalURL, shortURL })
+                  .then(() => {
+                    console.log('3')
+                    return res.render('show', { shortURL })
+                  })
+              } else {
+                // 有重複的，重造
+                console.log('4')
+                return check()
+              }
+            })
+        }
+        check()
       }
     })
     .catch(error => console.log(error))
@@ -70,6 +74,5 @@ router.get('/:shortURL', (req, res) => {
     })
     .catch(error => console.log(error))
 })
-
 
 module.exports = router
