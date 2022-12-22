@@ -4,8 +4,6 @@ const generateShortURL = require('../../random-generator')
 
 const URL = require('../../models/URL')
 
-
-
 router.get('/', (_req, res) => {
   res.render('index')
 })
@@ -55,7 +53,7 @@ function createData(originalURL, res) {
   const shortURL = generateShortURL()
   return URL.find({ shortURL })
     .lean()
-    .then(function (data) {
+    .then((data) => {
       // 沒有重複的已存短網址
       if (data.length === 0) {
         URL.create({ originalURL, shortURL })
